@@ -81,16 +81,6 @@
       args:
         creates: /bin/composer
 
-    # Laravel
-    - name: Install Laravel 6.x
-      shell: composer global require "laravel/installer"
-      args:
-        creates: /root/.composer/vendor/bin/laravel
-    - name: Create Laravel Project
-      shell: composer create-project laravel/laravel sampleproject --prefer-dist "6.*"
-      args:
-        chdir: /home/vagrant
-
     # php.ini 編集
     - name: Setting php.ini -timezone
       replace:
