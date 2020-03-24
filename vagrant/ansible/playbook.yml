@@ -3,22 +3,108 @@
   remote_user: vagrant
   become_user: root
   tasks:
+    - name: Setting SELinux
+      yum:
+        name: libselinux-python
+        state: installed
+
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+
+    - name: Setting Timezone
+      timezone:
+        name: Asia/Tokyo
+      
+    # yum install
+    - name: EPEL Repository
+      yum:
+        name: epel-release
+        state: latest
+        
+    - name: Remi repository
+      command: rpm -ih http://rpms.famillecollet.com/enterprise/remi-release-7.rpm creates=/etc/yum.repos.d/remi.repo
+
+    - name: Install Git
+      yum:
+        name: git
+        state: latest
+
     - name: Install httpd
       yum:
         name: httpd
+        state: latest
 
-    - name: Make sure Apache is running
+    - name: Install Redis
+      yum:
+        name: redis
+        state: latest
+
+    - name: Install PHP 7.4
+      yum: name={{ item }} enablerepo=remi,remi-php74 state=latest
+      with_items:
+        - php
+        - php-devel
+        - php-common
+        - php-fpm
+        - php-opcache
+        - php-pecl-redis
+        - php-mbstring
+        - php-mcrypt
+        - php-mysqlnd
+        - php-pdo
+        - php-gd
+        - php-xml
+        - php-zip
+
+    - name: Start httpd
       service:
         name: httpd
         state: started
-
-    - name: Verify Firewall
-      firewalld:
-        service: http
-        permanent: true
-        state: enabled
-
-    - name: Restart firewall
+        enabled: true
+    
+    - name: Start Redis
       service:
+        name: redis
+        state: started
+        enabled: true
+
+    - name: firewalld Disable
+      systemd:
         name: firewalld
-        state: restarted
+        state: stopped
+        enabled: false
+
+    # Composer
+    - name: Install Composer
+      shell:  curl -sS https://getcomposer.org/installer | php -- --install-dir=/bin && mv /bin/composer.phar /bin/composer
+      args:
+        creates: /bin/composer
+
+    # Laravel
+    - name: Install Laravel 6.x
+      shell: composer global require "laravel/installer"
+      args:
+        creates: /root/.composer/vendor/bin/laravel
+    - name: Create Laravel Project
+      shell: composer create-project laravel/laravel sampleproject --prefer-dist "6.*"
+      args:
+        chdir: /home/vagrant
+
+    # php.ini 編集
+    - name: Setting php.ini -timezone
+      replace:
+        path: /etc/php.ini
+        regexp: '^;date.timezone ='
+        replace: date.timezone = Asia/Tokyo
+
+    - name: Edit httpd.conf - DocRoot
+      replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^DocumentRoot "/var/www/html"'
+        replace: DocumentRoot "/home/vagrant/sampleproject/public"
+    - name: Edit httpd.conf - Directory
+      replace:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^\<Directory "/var/www/html"\>'
+        replace: <Directory "/home/vagrant/sampleproject/public">
