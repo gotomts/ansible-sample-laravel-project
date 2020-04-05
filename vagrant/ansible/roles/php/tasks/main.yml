@@ -1,0 +1,26 @@
+- name: Install PHP 7.4
+  yum: 
+    name: [
+      php,
+      php-devel,
+      php-common,
+      php-fpm,
+      php-opcache,
+      php-pecl-redis,
+      php-mbstring,
+      php-mcrypt,
+      php-mysqlnd,
+      php-pdo,
+      php-gd,
+      php-xml,
+      php-zip
+    ]
+    enablerepo: remi,remi-php74
+    state: latest
+
+# php.ini 編集
+- name: Setting php.ini -timezone
+  replace:
+    path: /etc/php.ini
+    regexp: "^;date.timezone ="
+    replace: date.timezone = Asia/Tokyo

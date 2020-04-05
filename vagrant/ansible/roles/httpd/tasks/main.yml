@@ -1,0 +1,17 @@
+- name: Install httpd
+  yum:
+    name: httpd
+    state: latest
+
+# 設定ファイルのコピー
+- name: Setting file httpd backup
+  command: cp -p /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.org
+- name: Setting file httpd copy
+  command: cp -p /vagrant/files/etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf
+- name: Setting file vhttpd copy
+  command: cp -p /vagrant/files/etc/httpd/conf.d/sampleproject.conf /etc/httpd/conf.d/sampleproject.conf
+
+- name: Restart httpd
+  service:
+    name: httpd
+    state: restarted
