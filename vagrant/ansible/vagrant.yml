@@ -1,0 +1,16 @@
+- hosts: all
+  become: true
+  remote_user: vagrant
+  become_user: root
+  roles:
+    - selinux
+    - firewalld
+    - timezone
+    - epel-repository
+    - remi-repository
+    - git
+    - httpd
+    - redis
+    - php
+    - mysql
+    - composer
