@@ -24,7 +24,7 @@
 - name: Setting file vhttpd copy
   copy:
     src: sampleproject.conf
-    dest: /etc/httpd/conf/sampleproject.conf
+    dest: /etc/httpd/conf.d/sampleproject.conf
     mode: 0600
     owner: root
     group: root
