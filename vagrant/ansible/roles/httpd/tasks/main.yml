@@ -4,14 +4,35 @@
     state: latest
 
 # 設定ファイルのコピー
+- name: check httpd.conf.org
+  stat: path=/etc/httpd/conf/httpd.conf.org
+  register: httpd_conf_org
 - name: Setting file httpd backup
   command: cp -p /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.org
+  when: httpd_conf_org.stat.exists == false
 - name: Setting file httpd copy
-  command: cp -p /vagrant/files/etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf
+  copy:
+    src: httpd.conf
+    dest: /etc/httpd/conf/httpd.conf
+    mode: 0600
+    owner: root
+    group: root
+  when: httpd_conf_org.stat.exists == false
+- name: check vhttpd
+  stat: path=/etc/httpd/conf.d/sampleproject.conf
+  register: vhttpd_conf_org
 - name: Setting file vhttpd copy
-  command: cp -p /vagrant/files/etc/httpd/conf.d/sampleproject.conf /etc/httpd/conf.d/sampleproject.conf
+  copy:
+    src: sampleproject.conf
+    dest: /etc/httpd/conf/sampleproject.conf
+    mode: 0600
+    owner: root
+    group: root
+  when: vhttpd_conf_org.stat.exists == false
 
-- name: Restart httpd
+- name: Start httpd
   service:
     name: httpd
-    state: restarted
+    state: started
+    enabled: true
+  when: vhttpd_conf_org.stat.exists == false
