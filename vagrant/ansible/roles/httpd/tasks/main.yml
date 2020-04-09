@@ -19,12 +19,12 @@
     group: root
   when: httpd_conf_org.stat.exists == false
 - name: check vhttpd
-  stat: path=/etc/httpd/conf.d/sampleproject.conf
+  stat: "path=/etc/httpd/conf.d/{{ project_name }}.conf"
   register: vhttpd_conf_org
 - name: Setting file vhttpd copy
-  copy:
-    src: sampleproject.conf
-    dest: /etc/httpd/conf.d/sampleproject.conf
+  template:
+    src: template.conf.j2
+    dest: "/etc/httpd/conf.d/{{ project_name }}.conf"
     mode: 0600
     owner: root
     group: root

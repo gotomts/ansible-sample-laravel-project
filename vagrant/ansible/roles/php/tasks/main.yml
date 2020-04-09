@@ -24,3 +24,9 @@
     path: /etc/php.ini
     regexp: "^;date.timezone ="
     replace: date.timezone = Asia/Tokyo
+
+- name: Restart httpd
+  service:
+    name: httpd
+    state: restarted
+    enabled: true
